@@ -29,6 +29,7 @@ __all__ = [
 from oslo_config import cfg
 import oslo_messaging as messaging
 from oslo_serialization import jsonutils
+from osprofiler import profiler
 
 import nova.context
 import nova.exception
@@ -111,11 +112,24 @@ class RequestContextSerializer(messaging.Serializer):
         return self._base.deserialize_entity(context, entity)
 
     def serialize_context(self, context):
-        return context.to_dict()
+	_context = context.to_dict()
+	prof = profiler.get()
+        if prof:
+            trace_info = {
+                "hmac_key": prof.hmac_key,
+                "base_id": prof.get_base_id(),
+                "parent_id": prof.get_id()
+            }
+            _context.update({"trace_info": trace_info})
+        return _context
+        #return context.to_dict()
 
     def deserialize_context(self, context):
-        return nova.context.RequestContext.from_dict(context)
-
+	trace_info = context.pop("trace_info", None)
+	if trace_info:
+		profiler.init(**trace_info)
+	return nova.context.RequestContext.from_dict(context)
+	#return nova.context.RequestContext.from_dict(context)
 
 def get_transport_url(url_str=None):
     return messaging.TransportURL.parse(CONF, url_str, TRANSPORT_ALIASES)
