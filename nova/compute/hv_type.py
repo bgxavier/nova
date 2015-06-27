@@ -28,6 +28,7 @@ from nova import exception
 # This list is all known hypervisors
 # even if not currently supported by OpenStack.
 BAREMETAL = "baremetal"
+DOCKER = "docker"
 BHYVE = "bhyve"
 FAKE = "fake"
 HYPERV = "hyperv"
@@ -48,6 +49,7 @@ ZVM = "zvm"
 
 ALL = (
     BAREMETAL,
+    DOCKER,
     BHYVE,
     FAKE,
     HYPERV,
