@@ -25,6 +25,9 @@ import oslo_messaging as messaging
 from oslo_serialization import jsonutils
 from oslo_utils import importutils
 
+import osprofiler.notifier
+from osprofiler import profiler
+
 from nova import exception
 from nova import manager
 from nova import objects
@@ -51,7 +54,7 @@ CONF.register_opts(scheduler_driver_opts)
 
 QUOTAS = quota.QUOTAS
 
-
+@profiler.trace_cls("rpc")
 class SchedulerManager(manager.Manager):
     """Chooses a host to run instances on."""
 
@@ -126,7 +129,7 @@ class SchedulerManager(manager.Manager):
         self.driver.host_manager.sync_instance_info(context, host_name,
                                                     instance_uuids)
 
-
+@profiler.trace_cls("rpc")
 class _SchedulerManagerV3Proxy(object):
 
     target = messaging.Target(version='3.0')

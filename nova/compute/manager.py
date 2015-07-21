@@ -34,6 +34,9 @@ import time
 import traceback
 import uuid
 
+import osprofiler.notifier
+from osprofiler import profiler
+
 from cinderclient import exceptions as cinder_exception
 import eventlet.event
 from eventlet import greenthread
@@ -460,7 +463,7 @@ def aggregate_object_compat(function):
         return function(self, context, *args, **kwargs)
     return decorated_function
 
-
+@profiler.trace_cls("rpc")
 class InstanceEvents(object):
     def __init__(self):
         self._events = {}
@@ -575,7 +578,7 @@ class InstanceEvents(object):
                     tag=tag, data={})
                 eventlet_event.send(event)
 
-
+@profiler.trace_cls("rpc")
 class ComputeVirtAPI(virtapi.VirtAPI):
     def __init__(self, compute):
         super(ComputeVirtAPI, self).__init__()
@@ -649,7 +652,7 @@ class ComputeVirtAPI(virtapi.VirtAPI):
                 if decision is False:
                     break
 
-
+@profiler.trace_cls("rpc")
 class ComputeManager(manager.Manager):
     """Manages the running instances from creation to destruction."""
 
@@ -6554,6 +6557,7 @@ class ComputeManager(manager.Manager):
 
 # TODO(danms): This goes away immediately in Lemming and is just
 # present in Kilo so that we can receive v3.x and v4.0 messages
+@profiler.trace_cls("rpc")
 class _ComputeV4Proxy(object):
 
     target = messaging.Target(version='4.0')

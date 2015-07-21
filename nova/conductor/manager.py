@@ -24,6 +24,9 @@ from oslo_utils import excutils
 from oslo_utils import timeutils
 import six
 
+import osprofiler.notifier
+from osprofiler import profiler
+
 from nova.api.ec2 import ec2utils
 from nova import block_device
 from nova.cells import rpcapi as cells_rpcapi
@@ -64,7 +67,7 @@ allowed_updates = ['task_state', 'vm_state', 'expected_task_state',
 # Fields that we want to convert back into a datetime object.
 datetime_fields = ['launched_at', 'terminated_at', 'updated_at']
 
-
+@profiler.trace_cls("rpc")
 class ConductorManager(manager.Manager):
     """Mission: Conduct things.
 
@@ -459,7 +462,7 @@ class ConductorManager(manager.Manager):
     def object_backport(self, context, objinst, target_version):
         return objinst.obj_to_primitive(target_version=target_version)
 
-
+@profiler.trace_cls("rpc")
 class ComputeTaskManager(base.Base):
     """Namespace for compute methods.
 
