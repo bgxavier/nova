@@ -27,6 +27,7 @@ from oslo_utils import importutils
 
 import osprofiler.notifier
 from osprofiler import profiler
+import ostimeit
 
 from nova import exception
 from nova import manager
@@ -54,7 +55,6 @@ CONF.register_opts(scheduler_driver_opts)
 
 QUOTAS = quota.QUOTAS
 
-@profiler.trace_cls("rpc")
 class SchedulerManager(manager.Manager):
     """Chooses a host to run instances on."""
 
@@ -64,6 +64,8 @@ class SchedulerManager(manager.Manager):
         if not scheduler_driver:
             scheduler_driver = CONF.scheduler_driver
         self.driver = importutils.import_object(scheduler_driver)
+        self.driver = profiler.trace_cls("driver")(self.driver)
+
         super(SchedulerManager, self).__init__(service_name='scheduler',
                                                *args, **kwargs)
         self.additional_endpoints.append(_SchedulerManagerV3Proxy(self))
@@ -129,7 +131,6 @@ class SchedulerManager(manager.Manager):
         self.driver.host_manager.sync_instance_info(context, host_name,
                                                     instance_uuids)
 
-@profiler.trace_cls("rpc")
 class _SchedulerManagerV3Proxy(object):
 
     target = messaging.Target(version='3.0')

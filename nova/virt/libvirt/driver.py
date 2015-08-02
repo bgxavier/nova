@@ -55,6 +55,7 @@ from oslo_utils import strutils
 from oslo_utils import timeutils
 from oslo_utils import units
 import six
+import ostimeit
 
 from nova.api.metadata import base as instance_metadata
 from nova import block_device
@@ -2333,12 +2334,14 @@ class LibvirtDriver(driver.ComputeDriver):
 
     # NOTE(ilyaalekseyev): Implementation like in multinics
     # for xenapi(tr3buchet)
+    @ostimeit.timeit("cabeca")
     def spawn(self, context, instance, image_meta, injected_files,
               admin_password, network_info=None, block_device_info=None):
         disk_info = blockinfo.get_disk_info(CONF.libvirt.virt_type,
                                             instance,
                                             image_meta,
                                             block_device_info)
+        LOG.debug("olhaomapping: %s" % disk_info['mapping'])
         self._create_image(context, instance,
                            disk_info['mapping'],
                            network_info=network_info,
@@ -2663,7 +2666,7 @@ class LibvirtDriver(driver.ComputeDriver):
                                   '%(img_id)s (%(e)s)'),
                               {'img_id': img_id, 'e': e},
                               instance=instance)
-
+    @ostimeit.timeit("cabeca")
     def _create_image(self, context, instance,
                       disk_mapping, suffix='',
                       disk_images=None, network_info=None,
@@ -4339,6 +4342,7 @@ class LibvirtDriver(driver.ComputeDriver):
         return [('network-vif-plugged', vif['id'])
                 for vif in network_info if vif.get('active', True) is False]
 
+    @ostimeit.timeit("cabeca")
     def _create_domain_and_network(self, context, xml, instance, network_info,
                                    disk_info, block_device_info=None,
                                    power_on=True, reboot=False,

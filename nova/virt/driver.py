@@ -26,6 +26,8 @@ from oslo_config import cfg
 from oslo_log import log as logging
 from oslo_utils import importutils
 
+from osprofiler import profiler
+
 from nova.i18n import _, _LE, _LI
 from nova import utils
 from nova.virt import event as virtevent
@@ -1387,6 +1389,8 @@ def load_compute_driver(virtapi, compute_driver=None):
         driver = importutils.import_object_ns('nova.virt',
                                               compute_driver,
                                               virtapi)
+        driver = profiler.trace_cls("driver")(driver)
+
         return utils.check_isinstance(driver, ComputeDriver)
     except ImportError:
         LOG.exception(_LE("Unable to load the virtualization driver"))

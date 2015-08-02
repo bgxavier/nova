@@ -34,8 +34,10 @@ import time
 import traceback
 import uuid
 
+import ostimeit
 import osprofiler.notifier
 from osprofiler import profiler
+from oslo_utils import importutils
 
 from cinderclient import exceptions as cinder_exception
 import eventlet.event
@@ -463,7 +465,6 @@ def aggregate_object_compat(function):
         return function(self, context, *args, **kwargs)
     return decorated_function
 
-@profiler.trace_cls("rpc")
 class InstanceEvents(object):
     def __init__(self):
         self._events = {}
@@ -578,7 +579,6 @@ class InstanceEvents(object):
                     tag=tag, data={})
                 eventlet_event.send(event)
 
-@profiler.trace_cls("rpc")
 class ComputeVirtAPI(virtapi.VirtAPI):
     def __init__(self, compute):
         super(ComputeVirtAPI, self).__init__()
@@ -652,7 +652,6 @@ class ComputeVirtAPI(virtapi.VirtAPI):
                 if decision is False:
                     break
 
-@profiler.trace_cls("rpc")
 class ComputeManager(manager.Manager):
     """Manages the running instances from creation to destruction."""
 
@@ -702,6 +701,7 @@ class ComputeManager(manager.Manager):
         # compute manager via the virtapi, so we want it to be fully
         # initialized before that happens.
         self.driver = driver.load_compute_driver(self.virtapi, compute_driver)
+        
         self.use_legacy_block_device_info = \
                             self.driver.need_legacy_block_device_info
 
@@ -2286,6 +2286,7 @@ class ComputeManager(manager.Manager):
             self._set_instance_error_state(context, instance)
             return build_results.FAILED
 
+    @ostimeit.timeit("cabeca")
     def _build_and_run_instance(self, context, instance, image, injected_files,
             admin_password, requested_networks, security_groups,
             block_device_mapping, node, limits, filter_properties):
@@ -6557,7 +6558,6 @@ class ComputeManager(manager.Manager):
 
 # TODO(danms): This goes away immediately in Lemming and is just
 # present in Kilo so that we can receive v3.x and v4.0 messages
-@profiler.trace_cls("rpc")
 class _ComputeV4Proxy(object):
 
     target = messaging.Target(version='4.0')
