@@ -171,7 +171,7 @@ class Service(service.Service):
         # of the servicegroup API.
         self.servicegroup_api = servicegroup.API(db_allowed=db_allowed)
         manager_class = importutils.import_class(self.manager_class_name)
-        manager_class = profiler.trace_cls("rpc")(manager_class)
+        #manager_class = profiler.trace_cls("rpc")(manager_class)
         self.manager = manager_class(host=self.host, *args, **kwargs)
         self.rpcserver = None
         self.report_interval = report_interval

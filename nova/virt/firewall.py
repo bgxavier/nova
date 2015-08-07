@@ -19,6 +19,8 @@ from oslo_config import cfg
 from oslo_log import log as logging
 from oslo_utils import importutils
 
+from osprofiler import profiler
+
 from nova.compute import utils as compute_utils
 from nova import context
 from nova.i18n import _LI

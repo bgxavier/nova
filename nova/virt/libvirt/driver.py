@@ -57,6 +57,8 @@ from oslo_utils import units
 import six
 import ostimeit
 
+from osprofiler import profiler
+
 from nova.api.metadata import base as instance_metadata
 from nova import block_device
 from nova.compute import arch
@@ -379,7 +381,6 @@ MIN_QEMU_HYPERV_FEATURE_VERSION = (1, 1, 0)
 
 # parallels driver support
 MIN_LIBVIRT_PARALLELS_VERSION = (1, 2, 12)
-
 
 class LibvirtDriver(driver.ComputeDriver):
 
@@ -2335,6 +2336,7 @@ class LibvirtDriver(driver.ComputeDriver):
     # NOTE(ilyaalekseyev): Implementation like in multinics
     # for xenapi(tr3buchet)
     @ostimeit.timeit("cabeca")
+    @profiler.trace("driver")
     def spawn(self, context, instance, image_meta, injected_files,
               admin_password, network_info=None, block_device_info=None):
         disk_info = blockinfo.get_disk_info(CONF.libvirt.virt_type,
@@ -2667,6 +2669,7 @@ class LibvirtDriver(driver.ComputeDriver):
                               {'img_id': img_id, 'e': e},
                               instance=instance)
     @ostimeit.timeit("cabeca")
+    @profiler.trace("driver")
     def _create_image(self, context, instance,
                       disk_mapping, suffix='',
                       disk_images=None, network_info=None,
@@ -4152,6 +4155,7 @@ class LibvirtDriver(driver.ComputeDriver):
 
         return guest
 
+    @profiler.trace("driver")
     def _get_guest_xml(self, context, instance, network_info, disk_info,
                        image_meta, rescue=None,
                        block_device_info=None, write_to_disk=False):
@@ -4343,6 +4347,7 @@ class LibvirtDriver(driver.ComputeDriver):
                 for vif in network_info if vif.get('active', True) is False]
 
     @ostimeit.timeit("cabeca")
+    @profiler.trace("driver")
     def _create_domain_and_network(self, context, xml, instance, network_info,
                                    disk_info, block_device_info=None,
                                    power_on=True, reboot=False,

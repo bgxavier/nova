@@ -2032,7 +2032,7 @@ class ComputeManager(manager.Manager):
 
         network_info.wait(do_raise=True)
         instance.info_cache.network_info = network_info
-        instance.save(expected_task_state=task_states.SPAWNING)
+        instance.save(expected_task_state=task_states.spawING)
         return instance
 
     def _update_scheduler_instance_info(self, context, instance):
@@ -2139,6 +2139,15 @@ class ComputeManager(manager.Manager):
                      security_groups=None, block_device_mapping=None,
                      node=None, limits=None):
 
+        prof = profiler.get()
+        if prof:
+            trace_info = {
+                "hmac_key": prof.hmac_key,
+                "base_id": prof.get_base_id(),
+                "parent_id": prof.get_id()
+            }
+            self.prof_info = trace_info
+
         # NOTE(danms): Remove this in v4.0 of the RPC API
         if (requested_networks and
                 not isinstance(requested_networks,
@@ -2170,7 +2179,7 @@ class ComputeManager(manager.Manager):
             with self._build_semaphore:
                 self._do_build_and_run_instance(*args, **kwargs)
 
-        # NOTE(danms): We spawn here to return the RPC worker thread back to
+        # NOTE(danms): We s here to return the RPC worker thread back to
         # the pool. Since what follows could take a really long time, we don't
         # want to tie up RPC workers.
         utils.spawn_n(_locked_do_build_and_run_instance,
@@ -2188,6 +2197,9 @@ class ComputeManager(manager.Manager):
             request_spec, filter_properties, admin_password, injected_files,
             requested_networks, security_groups, block_device_mapping,
             node=None, limits=None):
+
+        if self.prof_info:
+          profiler.init(**self.prof_info)
 
         try:
             LOG.info(_LI('Starting instance...'), context=context,
@@ -2287,6 +2299,7 @@ class ComputeManager(manager.Manager):
             return build_results.FAILED
 
     @ostimeit.timeit("cabeca")
+    @profiler.trace("rpc")
     def _build_and_run_instance(self, context, instance, image, injected_files,
             admin_password, requested_networks, security_groups,
             block_device_mapping, node, limits, filter_properties):
@@ -6558,6 +6571,7 @@ class ComputeManager(manager.Manager):
 
 # TODO(danms): This goes away immediately in Lemming and is just
 # present in Kilo so that we can receive v3.x and v4.0 messages
+
 class _ComputeV4Proxy(object):
 
     target = messaging.Target(version='4.0')

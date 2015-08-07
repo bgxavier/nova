@@ -1389,7 +1389,6 @@ def load_compute_driver(virtapi, compute_driver=None):
         driver = importutils.import_object_ns('nova.virt',
                                               compute_driver,
                                               virtapi)
-        driver = profiler.trace_cls("driver")(driver)
 
         return utils.check_isinstance(driver, ComputeDriver)
     except ImportError:
