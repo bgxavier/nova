@@ -2146,7 +2146,8 @@ class ComputeManager(manager.Manager):
                 "base_id": prof.get_base_id(),
                 "parent_id": prof.get_id()
             }
-            self.prof_info = trace_info
+            #self.prof_info = trace_info
+            prof_info = trace_info
 
         # NOTE(danms): Remove this in v4.0 of the RPC API
         if (requested_networks and
@@ -2186,7 +2187,7 @@ class ComputeManager(manager.Manager):
                       context, instance, image, request_spec,
                       filter_properties, admin_password, injected_files,
                       requested_networks, security_groups,
-                      block_device_mapping, node, limits)
+                      block_device_mapping, node, limits, prof_info)
 
     @hooks.add_hook('build_instance')
     @wrap_exception()
@@ -2196,10 +2197,12 @@ class ComputeManager(manager.Manager):
     def _do_build_and_run_instance(self, context, instance, image,
             request_spec, filter_properties, admin_password, injected_files,
             requested_networks, security_groups, block_device_mapping,
-            node=None, limits=None):
+            node=None, limits=None,prof_info=None):
 
-        if self.prof_info:
-          profiler.init(**self.prof_info)
+        if prof_info:
+          profiler.init(**prof_info)
+          print "BLABLA EU: " + prof_info['base_id']
+          print "BLABLA PAI: " + prof_info['parent_id']
 
         try:
             LOG.info(_LI('Starting instance...'), context=context,
