@@ -74,6 +74,7 @@ import operator
 
 from oslo_config import cfg
 
+from osprofiler import profiler
 from nova import block_device
 from nova.compute import arch
 from nova.compute import vm_mode
@@ -84,6 +85,9 @@ from nova.virt import block_device as driver_block_device
 from nova.virt import configdrive
 from nova.virt import driver
 from nova.virt.libvirt import utils as libvirt_utils
+
+
+import ostimeit
 
 CONF = cfg.CONF
 
@@ -605,7 +609,8 @@ def get_disk_mapping(virt_type, instance,
 
     return mapping
 
-
+@ostimeit.timeit("cabeca")
+@profiler.trace("blockinfo")
 def get_disk_info(virt_type, instance, image_meta,
                   block_device_info=None, rescue=False):
     """Determine guest disk mapping info.

@@ -27,6 +27,8 @@ from oslo_utils import strutils
 from oslo_utils import units
 import six
 
+import ostimeit
+from osprofiler import profiler
 from nova import exception
 from nova.i18n import _
 from nova.i18n import _LE, _LI
@@ -374,7 +376,6 @@ class Image(object):
     def _get_lock_name(self, base):
         """Get an image's name of a base file."""
         return os.path.split(base)[-1]
-
 
 class Raw(Image):
     def __init__(self, instance=None, disk_name=None, path=None):
