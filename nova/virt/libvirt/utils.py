@@ -28,6 +28,8 @@ from oslo_concurrency import processutils
 from oslo_config import cfg
 from oslo_log import log as logging
 
+
+from osprofiler import profiler
 from nova.compute import arch
 from nova.i18n import _
 from nova.i18n import _LI
@@ -294,6 +296,7 @@ def get_disk_backing_file(path, basename=True):
     return backing_file
 
 
+@profiler.trace("image_copy")
 def copy_image(src, dest, host=None, receive=False):
     """Copy a disk image to an existing directory
 

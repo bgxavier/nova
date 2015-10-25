@@ -67,11 +67,13 @@ def qemu_img_info(path):
 
     return imageutils.QemuImgInfo(out)
 
+@profiler.trace("image_convert_to_raw")
 def convert_image(source, dest, out_format, run_as_root=False):
     """Convert image to other format."""
     cmd = ('qemu-img', 'convert', '-O', out_format, source, dest)
     utils.execute(*cmd, run_as_root=run_as_root)
 
+@profiler.trace("image_download")
 def fetch(context, image_href, path, _user_id, _project_id, max_size=0):
     with fileutils.remove_path_on_error(path):
         IMAGE_API.download(context, image_href, dest_path=path)
@@ -79,6 +81,7 @@ def fetch(context, image_href, path, _user_id, _project_id, max_size=0):
 def get_info(context, image_href):
     return IMAGE_API.get(context, image_href)
 
+@profiler.trace("image_fetch_to_raw")
 def fetch_to_raw(context, image_href, path, user_id, project_id, max_size=0):
     path_tmp = "%s.part" % path
     fetch(context, image_href, path_tmp, user_id, project_id,

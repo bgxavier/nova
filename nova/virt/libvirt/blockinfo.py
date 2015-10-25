@@ -609,8 +609,6 @@ def get_disk_mapping(virt_type, instance,
 
     return mapping
 
-@ostimeit.timeit("cabeca")
-@profiler.trace("blockinfo")
 def get_disk_info(virt_type, instance, image_meta,
                   block_device_info=None, rescue=False):
     """Determine guest disk mapping info.

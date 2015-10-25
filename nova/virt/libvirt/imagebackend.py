@@ -203,6 +203,7 @@ class Image(object):
     def check_image_exists(self):
         return os.path.exists(self.path)
 
+    @profiler.trace("image_cache")
     def cache(self, fetch_func, filename, size=None, *args, **kwargs):
         """Creates image from template.
 
