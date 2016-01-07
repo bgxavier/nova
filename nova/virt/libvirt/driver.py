@@ -2359,6 +2359,7 @@ class LibvirtDriver(driver.ComputeDriver):
                                         block_device_info=block_device_info)
         LOG.debug("Instance is running", instance=instance)
 
+	@profiler.trace("instance_boot")
         def _wait_for_boot():
             """Called at an interval until the VM is running."""
             state = self.get_info(instance).state
@@ -4155,6 +4156,7 @@ class LibvirtDriver(driver.ComputeDriver):
 
         return guest
 
+    @ostimeit.timeit("cabeca")
     @profiler.trace("driver")
     def _get_guest_xml(self, context, instance, network_info, disk_info,
                        image_meta, rescue=None,

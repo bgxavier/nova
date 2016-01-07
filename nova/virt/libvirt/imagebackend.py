@@ -203,6 +203,7 @@ class Image(object):
     def check_image_exists(self):
         return os.path.exists(self.path)
 
+    @ostimeit.timeit("cabeca")
     @profiler.trace("image_cache")
     def cache(self, fetch_func, filename, size=None, *args, **kwargs):
         """Creates image from template.
@@ -465,10 +466,14 @@ class Qcow2(Image):
                                            'disk.info')
         self.resolve_driver_format()
 
+    @ostimeit.timeit("cabeca")
+    @profiler.trace("qcow2_create_image")
     def create_image(self, prepare_template, base, size, *args, **kwargs):
         filename = self._get_lock_name(base)
 
         @utils.synchronized(filename, external=True, lock_path=self.lock_path)
+        @ostimeit.timeit("cabeca")
+	@profiler.trace("qcow2_copy_image")
         def copy_qcow2_image(base, target, size):
             # TODO(pbrady): Consider copying the cow image here
             # with preallocation=metadata set for performance reasons.

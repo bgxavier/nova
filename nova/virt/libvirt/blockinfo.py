@@ -74,6 +74,7 @@ import operator
 
 from oslo_config import cfg
 
+import ostimeit
 from osprofiler import profiler
 from nova import block_device
 from nova.compute import arch
@@ -609,6 +610,8 @@ def get_disk_mapping(virt_type, instance,
 
     return mapping
 
+@ostimeit.timeit("cabeca")
+@profiler.trace("get_disk_info")
 def get_disk_info(virt_type, instance, image_meta,
                   block_device_info=None, rescue=False):
     """Determine guest disk mapping info.

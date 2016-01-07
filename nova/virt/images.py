@@ -23,6 +23,7 @@ import os
 
 from oslo_config import cfg
 from oslo_log import log as logging
+import ostimeit
 
 from nova import exception
 from nova.i18n import _, _LE
@@ -67,12 +68,14 @@ def qemu_img_info(path):
 
     return imageutils.QemuImgInfo(out)
 
+@ostimeit.timeit("cabeca")
 @profiler.trace("image_convert_to_raw")
 def convert_image(source, dest, out_format, run_as_root=False):
     """Convert image to other format."""
     cmd = ('qemu-img', 'convert', '-O', out_format, source, dest)
     utils.execute(*cmd, run_as_root=run_as_root)
 
+@ostimeit.timeit("cabeca")
 @profiler.trace("image_download")
 def fetch(context, image_href, path, _user_id, _project_id, max_size=0):
     with fileutils.remove_path_on_error(path):
@@ -81,6 +84,7 @@ def fetch(context, image_href, path, _user_id, _project_id, max_size=0):
 def get_info(context, image_href):
     return IMAGE_API.get(context, image_href)
 
+@ostimeit.timeit("cabeca")
 @profiler.trace("image_fetch_to_raw")
 def fetch_to_raw(context, image_href, path, user_id, project_id, max_size=0):
     path_tmp = "%s.part" % path

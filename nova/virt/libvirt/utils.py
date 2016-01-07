@@ -27,7 +27,7 @@ from lxml import etree
 from oslo_concurrency import processutils
 from oslo_config import cfg
 from oslo_log import log as logging
-
+import ostimeit
 
 from osprofiler import profiler
 from nova.compute import arch
@@ -165,6 +165,8 @@ def get_fc_wwnns():
     return wwnns
 
 
+@ostimeit.timeit("cabeca")
+@profiler.trace("utils_create_image")
 def create_image(disk_format, path, size):
     """Create a disk image
 
@@ -180,6 +182,8 @@ def create_image(disk_format, path, size):
     execute('qemu-img', 'create', '-f', disk_format, path, size)
 
 
+@ostimeit.timeit("cabeca")
+@profiler.trace("utils_create_cow_image")
 def create_cow_image(backing_file, path, size=None):
     """Create COW image
 
@@ -296,6 +300,7 @@ def get_disk_backing_file(path, basename=True):
     return backing_file
 
 
+@ostimeit.timeit("cabeca")
 @profiler.trace("image_copy")
 def copy_image(src, dest, host=None, receive=False):
     """Copy a disk image to an existing directory
